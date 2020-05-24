@@ -73,23 +73,25 @@ const lightBox = document.querySelector(".js-lightbox");
 const buttonCloseModal = lightBox.querySelector(
   "button[data-action='close-lightbox']"
 );
-console.log(buttonCloseModal);
+// console.log(buttonCloseModal);
 
+const lightboxOverlay = lightBox.querySelector(".lightbox__overlay");
+// console.log(lightboxOverlay);
+const lightboxContent = lightBox.querySelector(".lightbox__content");
+// console.log(lightboxContent);
 const img = lightBox.querySelector("img.lightbox__image");
 // console.log(img);
 
+//Создание и рендер разметки по массиву данных и предоставленному шаблону.
+//Реализация делегирования на галерее ul.js-gallery и получение url большого изображения.
 const addImages = (images) =>
   images.reduce(
     (acc, { preview, original, description }) =>
       acc +
       `
     <li class="gallery__item">
-  <a
-    class="gallery__link"
-    href="${original}"
-  >
-    <img
-      class="gallery__image"
+  <a class="gallery__link" href="${original}">
+    <img class="gallery__image"
       src="${preview}"
       data-source="${original}"
       alt="${description}"
@@ -105,21 +107,59 @@ ulGallery.addEventListener("click", modal);
 
 buttonCloseModal.addEventListener("click", buttonClose);
 
+lightboxOverlay.addEventListener("click", divClose);
+
+window.addEventListener("keydown", escape);
+
+//Открытие модального окна по клику на элементе галереи.
+//Подмена значения атрибута src элемента img.lightbox__image.
 function modal(event) {
+  const lr = images.map((image) => image.original);
+
   if (event.target === event.currentTarget) {
     return;
   }
   event.preventDefault();
-  // console.log(event.target);
+
   lightBox.classList.add("is-open");
 
   const src = event.target.getAttribute("data-source");
 
-  img.setAttribute("src", src);
+  //Пролистывание изображений галереи в открытом модальном окне клавишами "влево" и "вправо".
+
+  for (let i = 0; i < lr.length; i++) {
+    if (src === lr[i]) {
+      img.setAttribute("src", lr[i]);
+
+      window.addEventListener("keydown", scrollImg);
+      function scrollImg(event) {
+        if (event.key === "ArrowLeft" && i > 0 && i <= lr.length) {
+          img.setAttribute("src", lr[--i]);
+        } else if (event.key === "ArrowRight" && i < lr.length - 1) {
+          img.setAttribute("src", lr[++i]);
+        }
+      }
+    }
+  }
 }
+//Закрытие модального окна по клику на кнопку button[data-action="close-modal"].
+//Очистка значения атрибута src элемента img.lightbox__image.
 
 function buttonClose(event) {
   event.preventDefault();
   lightBox.classList.remove("is-open");
   img.removeAttribute("src");
+}
+
+//Закрытие модального окна по клику на div.lightbox__overlay.
+function divClose(event) {
+  // lightboxContent.replaceWith(lightboxContent);
+  buttonClose(event);
+}
+
+//Закрытие модального окна по нажатию клавиши ESC.
+function escape(event) {
+  if (event.key === "Escape") {
+    buttonClose(event);
+  }
 }
