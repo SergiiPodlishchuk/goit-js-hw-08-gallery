@@ -107,7 +107,7 @@ ulGallery.addEventListener("click", modal);
 
 buttonCloseModal.addEventListener("click", buttonClose);
 
-lightboxOverlay.addEventListener("click", divClose);
+lightBox.addEventListener("click", divClose);
 
 window.addEventListener("keydown", escape);
 
@@ -153,7 +153,9 @@ function buttonClose(event) {
 
 //Закрытие модального окна по клику на div.lightbox__overlay.
 function divClose(event) {
-  // lightboxContent.replaceWith(lightboxContent);
+  if (event.target.nodeName === "IMG") {
+    return;
+  }
   buttonClose(event);
 }
 
